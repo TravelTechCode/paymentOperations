@@ -1,0 +1,611 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "https://payback-service.booking.com",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/v1/payback/refund-by-purchase-item": {
+            "put": {
+                "tags": [
+                    "payback-controller"
+                ],
+                "summary": "Accepts request to refund single or multiple purchase items.",
+                "description": "Accepts a request to refund a single purchase item or multiple items for a given purchase ID. The amount can be full or partial. \nCustomers can specify a preferred payment instrument for receiving a refund. \nUse preferredUserCharges to map the respective user charge to the preferred payment instrument. \nIf there are several preferences, add a comma-separated list of the user charges. If there are no preferences, leave the parameter empty. \nNote: If you send multiple requests with the same request ID, we consider it a single request to refund a purchase. \nIf you want to refund another purchase, use a new request ID.",
+                "operationId": "refundByPurchaseItem",
+                "parameters": [
+                    {
+                        "name": "X-Booking-Authentication",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "X-Payments-TraceId",
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RefundOrderInput"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/v1/payback/cancel-purchase": {
+            "put": {
+                "tags": [
+                    "payback-controller"
+                ],
+                "summary": "Accepts request to cancel full amount.",
+                "description": "Accepts a request to cancel the full amount (all the user charges) for a given purchase ID. \nNote: If you send multiple requests with the same request ID, we consider it a single request to cancel a purchase. \nIf you want to cancel another purchase, use a new request ID.",
+                "operationId": "cancelPurchase",
+                "parameters": [
+                    {
+                        "name": "X-Booking-Authentication",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "X-Payments-TraceId",
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelInput"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/v1/payback/refund-info-by-requestId/{originalRefundRequestId}": {
+            "get": {
+                "tags": [
+                    "payback-controller"
+                ],
+                "summary": "Gets latest update on refund or cancel request.",
+                "description": "Gets the latest update on your refund or cancel request for a given request ID. \nThe response contains the same data as notifications, but the state can be any of the final or non-final ones. \nFor more on states, see [Notifications](https://paydocs.prod.booking.com/payouts-and-refunds/payback-service/configure-notifications/#_states).",
+                "operationId": "getRefundDataByRequestId",
+                "parameters": [
+                    {
+                        "name": "X-Booking-Authentication",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "X-Payments-TraceId",
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "originalRefundRequestId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Found the refund given the request ID",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaybackOrderInfo"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request ID supplied"
+                    },
+                    "404": {
+                        "description": "Request ID not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaybackOrderInfo"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/payback/refund-info-by-purchaseId/{purchaseId}": {
+            "get": {
+                "tags": [
+                    "payback-controller"
+                ],
+                "summary": "Gets latest update on all refund or cancel requests.",
+                "description": "Gets the latest update on all your refund or cancel requests for a given purchase ID. \nThe response contains a list of objects, each having the same data as notifications, but the state can be any of the final or non-final ones. \nFor more on states, see [Notifications](https://paydocs.prod.booking.com/payouts-and-refunds/payback-service/configure-notifications/#_states).",
+                "operationId": "getRefundDataByPurchaseId",
+                "parameters": [
+                    {
+                        "name": "X-Booking-Authentication",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "X-Payments-TraceId",
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "purchaseId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Found the refund given the purchase ID",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaybackPurchaseInfo"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid purchase ID supplied"
+                    },
+                    "404": {
+                        "description": "Purchase ID not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaybackPurchaseInfo"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Amount": {
+                "required": [
+                    "currency",
+                    "value"
+                ],
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "minimum": 0,
+                        "exclusiveMinimum": false,
+                        "type": "number",
+                        "description": "Amount value to refund",
+                        "example": 20.53
+                    },
+                    "currency": {
+                        "maxLength": 3,
+                        "minLength": 3,
+                        "type": "string",
+                        "description": "Amount currency of the refund",
+                        "example": "USD"
+                    }
+                },
+                "description": "Amount In Charge Currency for this item"
+            },
+            "RefundOrderInput": {
+                "required": [
+                    "purchaseId",
+                    "refundPurchaseItems",
+                    "requestId",
+                    "transactionSource"
+                ],
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "type": "string",
+                        "description": "Request identifier. Each unique request should have a unique ID,\nbut you can reuse an ID to repeat a request (i.e. idempotency).Must be a UUID v4, generated (and stored) by you.",
+                        "format": "uuid",
+                        "example": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+                    },
+                    "purchaseId": {
+                        "type": "string",
+                        "description": "Identifier for the full collection of items included in a purchase.\nAll of the items in the 'shopping basket', in other words.\nEx.: A hotel room + 2 museum tickets, purchased as a package deal.",
+                        "example": "71021d30-3d6f-4e9d-a02d-4bcf35a26e63"
+                    },
+                    "transactionSource": {
+                        "type": "string",
+                        "description": "The business unit, service, or product that's responsible for the refund",
+                        "example": "accommodations"
+                    },
+                    "refundReason": {
+                        "type": "string",
+                        "description": "Reason for the refund operation",
+                        "example": "Guest cancelled the room"
+                    },
+                    "refundPurchaseItems": {
+                        "maxItems": 2147483647,
+                        "minItems": 1,
+                        "type": "array",
+                        "description": "List of purchase item ids with their corresponding amount to refund",
+                        "items": {
+                            "$ref": "#/components/schemas/RefundPurchaseItem"
+                        }
+                    },
+                    "preferredUserCharges": {
+                        "uniqueItems": true,
+                        "type": "array",
+                        "description": "List of preferred user charges to refund",
+                        "example": "['9c7055a0-4d95-4e4d-8fa3-ba957219ae7e', 'df6d9d72-4c64-4a56-acbb-07c634b2ea78']",
+                        "items": {
+                            "type": "string",
+                            "description": "List of preferred user charges to refund",
+                            "format": "uuid"
+                        }
+                    }
+                },
+                "description": "Request Request Body Params"
+            },
+            "RefundPurchaseItem": {
+                "required": [
+                    "amount",
+                    "purchaseItemId"
+                ],
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "$ref": "#/components/schemas/Amount"
+                    },
+                    "purchaseItemId": {
+                        "type": "string",
+                        "description": "PurchaseItemId for this item",
+                        "example": "c3c493ca-ba89-495b-a48d-b0527a85b56b"
+                    }
+                },
+                "description": "List of purchase item ids with their corresponding amount to refund"
+            },
+            "CancelInput": {
+                "required": [
+                    "purchaseId",
+                    "requestId",
+                    "transactionSource"
+                ],
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "type": "string",
+                        "description": "Request identifier. Each unique request should have a unique ID,\nbut you can reuse an ID to repeat a request (i.e. idempotency).Must be a UUID v4, generated (and stored) by you.",
+                        "format": "uuid",
+                        "example": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+                    },
+                    "purchaseId": {
+                        "type": "string",
+                        "description": "Identifier for the full collection of items included in a purchase.\nAll of the items in the 'shopping basket', in other words.\nEx.: A hotel room + 2 museum tickets, purchased as a package deal.",
+                        "example": "71021d30-3d6f-4e9d-a02d-4bcf35a26e63"
+                    },
+                    "transactionSource": {
+                        "type": "string",
+                        "description": "The business unit, service, or product that's responsible for the refund",
+                        "example": "accommodations"
+                    },
+                    "refundReason": {
+                        "type": "string",
+                        "description": "Reason for the void operation",
+                        "example": "Guest cancelled the room"
+                    }
+                },
+                "description": "Cancel Input object"
+            },
+            "CancelItemInfo": {
+                "required": [
+                    "chargeRequestId",
+                    "itemSettlement",
+                    "itemStatus",
+                    "userChargeAmount",
+                    "userChargeId"
+                ],
+                "type": "object",
+                "properties": {
+                    "chargeRequestId": {
+                        "type": "string",
+                        "description": "Charge request id of the cancel item",
+                        "format": "uuid",
+                        "example": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+                    },
+                    "userChargeId": {
+                        "type": "string",
+                        "description": "UserChargeId for the cancel item",
+                        "format": "uuid",
+                        "example": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+                    },
+                    "userRefundId": {
+                        "type": "string",
+                        "description": "userRefundId for the cancel item",
+                        "format": "uuid",
+                        "example": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+                    },
+                    "userChargeAmount": {
+                        "$ref": "#/components/schemas/Amount"
+                    },
+                    "acquirerReferenceNumber": {
+                        "type": "string",
+                        "description": "Acquirer reference number of the cancel item",
+                        "example": "1122334567891234567892"
+                    },
+                    "paymentMethod": {
+                        "type": "string",
+                        "description": "Payment method of the cancel item",
+                        "example": "VISA"
+                    },
+                    "itemStatus": {
+                        "type": "string",
+                        "description": "Item status of the cancel item",
+                        "example": "SUCCESS"
+                    },
+                    "failureReason": {
+                        "type": "string",
+                        "description": "Failure reason of the cancel item",
+                        "example": "Reservation cancelled by guest"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "description": "Last updated timestamp of the cancel item",
+                        "format": "date-time",
+                        "example": "2007-12-03T10:15:30+01:00"
+                    },
+                    "itemSettlement": {
+                        "type": "string",
+                        "description": "Status of the item settlement",
+                        "example": "SETTLED",
+                        "enum": [
+                            "PENDING",
+                            "REFUNDED",
+                            "SETTLED",
+                            "FAILED"
+                        ]
+                    }
+                }
+            },
+            "PaybackOrderInfo": {
+                "required": [
+                    "operation",
+                    "orderSettlement",
+                    "orderStatus",
+                    "purchaseId",
+                    "requestId",
+                    "transactionSource"
+                ],
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "type": "string",
+                        "description": "Id for the refund request",
+                        "format": "uuid",
+                        "example": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+                    },
+                    "purchaseId": {
+                        "type": "string",
+                        "description": "Purchase Identifier used for refund request",
+                        "example": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+                    },
+                    "orderStatus": {
+                        "type": "string",
+                        "description": "Status of the order",
+                        "example": "2e1c86a4-dc76-428d-a3e2-295daa4832dc",
+                        "enum": [
+                            "ACCEPTED",
+                            "IN_PROGRESS",
+                            "PARTIAL_SUCCESS",
+                            "SUCCESS",
+                            "FAILED"
+                        ]
+                    },
+                    "transactionSource": {
+                        "type": "string",
+                        "description": "Product identified which initiated this refund",
+                        "example": "accommodations"
+                    },
+                    "operation": {
+                        "type": "string",
+                        "description": "Operation type for this request. REFUND or VOID",
+                        "example": "REFUND"
+                    },
+                    "failureReason": {
+                        "type": "string",
+                        "description": "Failure reason for this order",
+                        "example": "Reservation cancelled by guest"
+                    },
+                    "orderSettlement": {
+                        "type": "string",
+                        "description": "Status of the order settlement",
+                        "example": "SETTLED",
+                        "enum": [
+                            "PENDING",
+                            "PARTIALLY_SETTLED",
+                            "SETTLED",
+                            "FAILED"
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "description": "Payback requested timestamp of the refund item",
+                        "format": "date-time",
+                        "example": "2023-12-03T10:15:30+01:00"
+                    },
+                    "refundItemInfos": {
+                        "type": "array",
+                        "description": "List of refund items issued for this request",
+                        "items": {
+                            "$ref": "#/components/schemas/RefundItemInfo"
+                        }
+                    },
+                    "cancelItemInfos": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CancelItemInfo"
+                        }
+                    }
+                }
+            },
+            "RefundItemInfo": {
+                "required": [
+                    "amountInChargeCurrency",
+                    "amountInPurchaseCurrency",
+                    "itemSettlement",
+                    "itemStatus",
+                    "purchaseItemId",
+                    "userChargeId"
+                ],
+                "type": "object",
+                "properties": {
+                    "purchaseItemId": {
+                        "type": "string",
+                        "description": "PurchaseItemId for the refund item",
+                        "example": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+                    },
+                    "userChargeId": {
+                        "type": "string",
+                        "description": "UserChargeId for the refund item",
+                        "format": "uuid",
+                        "example": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+                    },
+                    "userRefundId": {
+                        "type": "string",
+                        "description": "userRefundId for the refund item",
+                        "format": "uuid",
+                        "example": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+                    },
+                    "amountInPurchaseCurrency": {
+                        "$ref": "#/components/schemas/Amount"
+                    },
+                    "amountInChargeCurrency": {
+                        "$ref": "#/components/schemas/Amount"
+                    },
+                    "acquirerReferenceNumber": {
+                        "type": "string",
+                        "description": "Acquirer reference number of the refund item",
+                        "example": "1122334567891234567892"
+                    },
+                    "paymentMethod": {
+                        "type": "string",
+                        "description": "Payment method of the refund item",
+                        "example": "VISA"
+                    },
+                    "itemStatus": {
+                        "type": "string",
+                        "description": "Item status of the refund item",
+                        "example": "SUCCESS",
+                        "enum": [
+                            "DISTRIBUTED",
+                            "ISSUED_PAYBACK",
+                            "SUCCESS",
+                            "FAILED"
+                        ]
+                    },
+                    "failureReason": {
+                        "type": "string",
+                        "description": "Failure reason of the refund item",
+                        "example": "Reservation cancelled by guest"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "description": "Last updated timestamp of the refund item",
+                        "format": "date-time",
+                        "example": "2007-12-03T10:15:30+01:00"
+                    },
+                    "itemSettlement": {
+                        "type": "string",
+                        "description": "Status of the item settlement",
+                        "example": "SETTLED",
+                        "enum": [
+                            "PENDING",
+                            "REFUNDED",
+                            "SETTLED",
+                            "FAILED"
+                        ]
+                    }
+                },
+                "description": "List of refund items issued for this request"
+            },
+            "PaybackPurchaseInfo": {
+                "type": "object",
+                "properties": {
+                    "paybackRequestInfoList": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaybackOrderInfo"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

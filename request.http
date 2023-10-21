@@ -1,0 +1,2 @@
+### get payback details
+GET http://localhost:4004/PayOps/getPaybackDetails(requestId='9b5c7cd4-9c4c-4c5e-b10f-2f47a0be4056')

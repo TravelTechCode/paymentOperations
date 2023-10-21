@@ -1,0 +1,467 @@
+{
+ "definitions": {
+  "OpenAPI.definition": {
+   "kind": "service",
+   "@Capabilities.BatchSupported": false,
+   "@Capabilities.KeyAsSegmentSupported": true,
+   "@Core.Description": "OpenAPI definition",
+   "@Core.SchemaVersion": "v0"
+  },
+  "OpenAPI.definition.v1_payback_refund_by_purchase_item_put": {
+   "kind": "action",
+   "params": {
+    "X_Booking_Authentication": {
+     "type": "cds.String",
+     "@openapi.in": "header",
+     "@openapi.required": true,
+     "@openapi.name": "X-Booking-Authentication"
+    },
+    "X_Payments_TraceId": {
+     "type": "cds.String",
+     "@openapi.in": "header",
+     "@openapi.name": "X-Payments-TraceId"
+    },
+    "body": {
+     "type": "OpenAPI.definition_types.RefundOrderInput",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "payback-controller",
+   "@Core.Description": "Accepts request to refund single or multiple purchase items.",
+   "@Core.LongDescription": "Accepts a request to refund a single purchase item or multiple items for a given purchase ID. The amount can be full or partial. \nCustomers can specify a preferred payment instrument for receiving a refund. \nUse preferredUserCharges to map the respective user charge to the preferred payment instrument. \nIf there are several preferences, add a comma-separated list of the user charges. If there are no preferences, leave the parameter empty. \nNote: If you send multiple requests with the same request ID, we consider it a single request to refund a purchase. \nIf you want to refund another purchase, use a new request ID.",
+   "@openapi.method": "PUT",
+   "@openapi.path": "/v1/payback/refund-by-purchase-item"
+  },
+  "OpenAPI.definition.v1_payback_cancel_purchase_put": {
+   "kind": "action",
+   "params": {
+    "X_Booking_Authentication": {
+     "type": "cds.String",
+     "@openapi.in": "header",
+     "@openapi.required": true,
+     "@openapi.name": "X-Booking-Authentication"
+    },
+    "X_Payments_TraceId": {
+     "type": "cds.String",
+     "@openapi.in": "header",
+     "@openapi.name": "X-Payments-TraceId"
+    },
+    "body": {
+     "type": "OpenAPI.definition_types.CancelInput",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "payback-controller",
+   "@Core.Description": "Accepts request to cancel full amount.",
+   "@Core.LongDescription": "Accepts a request to cancel the full amount (all the user charges) for a given purchase ID. \nNote: If you send multiple requests with the same request ID, we consider it a single request to cancel a purchase. \nIf you want to cancel another purchase, use a new request ID.",
+   "@openapi.method": "PUT",
+   "@openapi.path": "/v1/payback/cancel-purchase"
+  },
+  "OpenAPI.definition.v1_payback_refund_info_by_requestId_": {
+   "kind": "function",
+   "params": {
+    "X_Booking_Authentication": {
+     "type": "cds.String",
+     "@openapi.in": "header",
+     "@openapi.required": true,
+     "@openapi.name": "X-Booking-Authentication"
+    },
+    "X_Payments_TraceId": {
+     "type": "cds.String",
+     "@openapi.in": "header",
+     "@openapi.name": "X-Payments-TraceId"
+    },
+    "originalRefundRequestId": {
+     "type": "cds.UUID",
+     "@openapi.in": "path"
+    }
+   },
+   "@Common.Label": "payback-controller",
+   "@Core.Description": "Gets latest update on refund or cancel request.",
+   "@Core.LongDescription": "Gets the latest update on your refund or cancel request for a given request ID. \nThe response contains the same data as notifications, but the state can be any of the final or non-final ones. \nFor more on states, see [Notifications](https://paydocs.prod.booking.com/payouts-and-refunds/payback-service/configure-notifications/#_states).",
+   "@openapi.path": "/v1/payback/refund-info-by-requestId/{originalRefundRequestId}",
+   "returns": {
+    "type": "OpenAPI.definition_types.PaybackOrderInfo"
+   }
+  },
+  "OpenAPI.definition.v1_payback_refund_info_by_purchaseId_": {
+   "kind": "function",
+   "params": {
+    "X_Booking_Authentication": {
+     "type": "cds.String",
+     "@openapi.in": "header",
+     "@openapi.required": true,
+     "@openapi.name": "X-Booking-Authentication"
+    },
+    "X_Payments_TraceId": {
+     "type": "cds.String",
+     "@openapi.in": "header",
+     "@openapi.name": "X-Payments-TraceId"
+    },
+    "purchaseId": {
+     "type": "cds.String",
+     "@openapi.in": "path"
+    }
+   },
+   "@Common.Label": "payback-controller",
+   "@Core.Description": "Gets latest update on all refund or cancel requests.",
+   "@Core.LongDescription": "Gets the latest update on all your refund or cancel requests for a given purchase ID. \nThe response contains a list of objects, each having the same data as notifications, but the state can be any of the final or non-final ones. \nFor more on states, see [Notifications](https://paydocs.prod.booking.com/payouts-and-refunds/payback-service/configure-notifications/#_states).",
+   "@openapi.path": "/v1/payback/refund-info-by-purchaseId/{purchaseId}",
+   "returns": {
+    "type": "OpenAPI.definition_types.PaybackPurchaseInfo"
+   }
+  },
+  "OpenAPI.definition_types.Amount": {
+   "@description": "Amount In Charge Currency for this item",
+   "elements": {
+    "value": {
+     "@description": "Amount value to refund",
+     "type": "cds.Decimal",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": 20.53
+    },
+    "currency": {
+     "@description": "Amount currency of the refund",
+     "type": "cds.String",
+     "length": 3,
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "USD"
+    }
+   },
+   "kind": "type"
+  },
+  "OpenAPI.definition_types.RefundOrderInput": {
+   "@description": "Request Request Body Params",
+   "elements": {
+    "requestId": {
+     "@description": "Request identifier. Each unique request should have a unique ID,\nbut you can reuse an ID to repeat a request (i.e. idempotency).Must be a UUID v4, generated (and stored) by you.",
+     "type": "cds.UUID",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+    },
+    "purchaseId": {
+     "@description": "Identifier for the full collection of items included in a purchase.\nAll of the items in the 'shopping basket', in other words.\nEx.: A hotel room + 2 museum tickets, purchased as a package deal.",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "71021d30-3d6f-4e9d-a02d-4bcf35a26e63"
+    },
+    "transactionSource": {
+     "@description": "The business unit, service, or product that's responsible for the refund",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "accommodations"
+    },
+    "refundReason": {
+     "@description": "Reason for the refund operation",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Guest cancelled the room"
+    },
+    "refundPurchaseItems": {
+     "@description": "List of purchase item ids with their corresponding amount to refund",
+     "items": {
+      "type": "OpenAPI.definition_types.RefundPurchaseItem"
+     }
+    },
+    "preferredUserCharges": {
+     "@description": "List of preferred user charges to refund",
+     "items": {
+      "type": "OpenAPI.definition.anonymous.type0"
+     }
+    }
+   },
+   "kind": "type"
+  },
+  "OpenAPI.definition_types.RefundPurchaseItem": {
+   "@description": "List of purchase item ids with their corresponding amount to refund",
+   "elements": {
+    "amount": {
+     "type": "OpenAPI.definition_types.Amount"
+    },
+    "purchaseItemId": {
+     "@description": "PurchaseItemId for this item",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "c3c493ca-ba89-495b-a48d-b0527a85b56b"
+    }
+   },
+   "kind": "type"
+  },
+  "OpenAPI.definition_types.CancelInput": {
+   "@description": "Cancel Input object",
+   "elements": {
+    "requestId": {
+     "@description": "Request identifier. Each unique request should have a unique ID,\nbut you can reuse an ID to repeat a request (i.e. idempotency).Must be a UUID v4, generated (and stored) by you.",
+     "type": "cds.UUID",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+    },
+    "purchaseId": {
+     "@description": "Identifier for the full collection of items included in a purchase.\nAll of the items in the 'shopping basket', in other words.\nEx.: A hotel room + 2 museum tickets, purchased as a package deal.",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "71021d30-3d6f-4e9d-a02d-4bcf35a26e63"
+    },
+    "transactionSource": {
+     "@description": "The business unit, service, or product that's responsible for the refund",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "accommodations"
+    },
+    "refundReason": {
+     "@description": "Reason for the void operation",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Guest cancelled the room"
+    }
+   },
+   "kind": "type"
+  },
+  "OpenAPI.definition_types.CancelItemInfo": {
+   "elements": {
+    "chargeRequestId": {
+     "@description": "Charge request id of the cancel item",
+     "type": "cds.UUID",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+    },
+    "userChargeId": {
+     "@description": "UserChargeId for the cancel item",
+     "type": "cds.UUID",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+    },
+    "userRefundId": {
+     "@description": "userRefundId for the cancel item",
+     "type": "cds.UUID",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+    },
+    "userChargeAmount": {
+     "type": "OpenAPI.definition_types.Amount"
+    },
+    "acquirerReferenceNumber": {
+     "@description": "Acquirer reference number of the cancel item",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "1122334567891234567892"
+    },
+    "paymentMethod": {
+     "@description": "Payment method of the cancel item",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "VISA"
+    },
+    "itemStatus": {
+     "@description": "Item status of the cancel item",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "SUCCESS"
+    },
+    "failureReason": {
+     "@description": "Failure reason of the cancel item",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Reservation cancelled by guest"
+    },
+    "updatedAt": {
+     "@description": "Last updated timestamp of the cancel item",
+     "type": "cds.Timestamp",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2007-12-03T10:15:30+01:00"
+    },
+    "itemSettlement": {
+     "@description": "Status of the item settlement",
+     "type": "cds.String",
+     "@assert.range": true,
+     "enum": {
+      "PENDING": {},
+      "REFUNDED": {},
+      "SETTLED": {},
+      "FAILED": {}
+     },
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "SETTLED"
+    }
+   },
+   "kind": "type"
+  },
+  "OpenAPI.definition_types.PaybackOrderInfo": {
+   "elements": {
+    "requestId": {
+     "@description": "Id for the refund request",
+     "type": "cds.UUID",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+    },
+    "purchaseId": {
+     "@description": "Purchase Identifier used for refund request",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+    },
+    "orderStatus": {
+     "@description": "Status of the order",
+     "type": "cds.String",
+     "@assert.range": true,
+     "enum": {
+      "ACCEPTED": {},
+      "IN_PROGRESS": {},
+      "PARTIAL_SUCCESS": {},
+      "SUCCESS": {},
+      "FAILED": {}
+     },
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+    },
+    "transactionSource": {
+     "@description": "Product identified which initiated this refund",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "accommodations"
+    },
+    "operation": {
+     "@description": "Operation type for this request. REFUND or VOID",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "REFUND"
+    },
+    "failureReason": {
+     "@description": "Failure reason for this order",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Reservation cancelled by guest"
+    },
+    "orderSettlement": {
+     "@description": "Status of the order settlement",
+     "type": "cds.String",
+     "@assert.range": true,
+     "enum": {
+      "PENDING": {},
+      "PARTIALLY_SETTLED": {},
+      "SETTLED": {},
+      "FAILED": {}
+     },
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "SETTLED"
+    },
+    "createdAt": {
+     "@description": "Payback requested timestamp of the refund item",
+     "type": "cds.Timestamp",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2023-12-03T10:15:30+01:00"
+    },
+    "refundItemInfos": {
+     "@description": "List of refund items issued for this request",
+     "items": {
+      "type": "OpenAPI.definition_types.RefundItemInfo"
+     }
+    },
+    "cancelItemInfos": {
+     "items": {
+      "type": "OpenAPI.definition_types.CancelItemInfo"
+     }
+    }
+   },
+   "kind": "type"
+  },
+  "OpenAPI.definition_types.RefundItemInfo": {
+   "@description": "List of refund items issued for this request",
+   "elements": {
+    "purchaseItemId": {
+     "@description": "PurchaseItemId for the refund item",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+    },
+    "userChargeId": {
+     "@description": "UserChargeId for the refund item",
+     "type": "cds.UUID",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+    },
+    "userRefundId": {
+     "@description": "userRefundId for the refund item",
+     "type": "cds.UUID",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2e1c86a4-dc76-428d-a3e2-295daa4832dc"
+    },
+    "amountInPurchaseCurrency": {
+     "type": "OpenAPI.definition_types.Amount"
+    },
+    "amountInChargeCurrency": {
+     "type": "OpenAPI.definition_types.Amount"
+    },
+    "acquirerReferenceNumber": {
+     "@description": "Acquirer reference number of the refund item",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "1122334567891234567892"
+    },
+    "paymentMethod": {
+     "@description": "Payment method of the refund item",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "VISA"
+    },
+    "itemStatus": {
+     "@description": "Item status of the refund item",
+     "type": "cds.String",
+     "@assert.range": true,
+     "enum": {
+      "DISTRIBUTED": {},
+      "ISSUED_PAYBACK": {},
+      "SUCCESS": {},
+      "FAILED": {}
+     },
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "SUCCESS"
+    },
+    "failureReason": {
+     "@description": "Failure reason of the refund item",
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Reservation cancelled by guest"
+    },
+    "updatedAt": {
+     "@description": "Last updated timestamp of the refund item",
+     "type": "cds.Timestamp",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "2007-12-03T10:15:30+01:00"
+    },
+    "itemSettlement": {
+     "@description": "Status of the item settlement",
+     "type": "cds.String",
+     "@assert.range": true,
+     "enum": {
+      "PENDING": {},
+      "REFUNDED": {},
+      "SETTLED": {},
+      "FAILED": {}
+     },
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "SETTLED"
+    }
+   },
+   "kind": "type"
+  },
+  "OpenAPI.definition_types.PaybackPurchaseInfo": {
+   "elements": {
+    "paybackRequestInfoList": {
+     "items": {
+      "type": "OpenAPI.definition_types.PaybackOrderInfo"
+     }
+    }
+   },
+   "kind": "type"
+  },
+  "OpenAPI.definition.anonymous.type0": {
+   "@description": "List of preferred user charges to refund",
+   "type": "cds.UUID",
+   "kind": "type"
+  }
+ },
+ "meta": {
+  "creator": "cds-import-openapi"
+ }
+}
